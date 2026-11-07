@@ -3,6 +3,7 @@ import { Effect } from "effect";
 import { Command } from "effect/cli";
 import { version } from "../package.json";
 import { ESLint } from "./backends/ESLint";
+import { Markdownlint } from "./backends/Markdownlint";
 import { command } from "./Cli";
 
 if (import.meta.main) {
@@ -10,6 +11,7 @@ if (import.meta.main) {
     Command.run({ version }),
     Effect.catch(() => Effect.sync(() => { process.exitCode = 2; })),
     Effect.provide(ESLint.layer),
+    Effect.provide(Markdownlint.layer),
     Effect.provide(BunServices.layer),
     BunRuntime.runMain({ disableErrorReporting: true }),
   );

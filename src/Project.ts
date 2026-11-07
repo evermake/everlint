@@ -16,6 +16,32 @@ export interface Plan<Backend extends Rule.Implementation> {
   readonly groups: readonly Group<Backend>[];
 }
 
+/** Project and regroup a shared discovery plan for one backend, without rerunning filters. */
+export const forBackend = <Backend extends Rule.Implementation, const Tool extends Backend["tool"]>(
+  plan: Plan<Backend>,
+  tool: Tool,
+): Plan<Extract<Backend, { readonly tool: Tool }>> => {
+  type Definition = Extract<Backend, { readonly tool: Tool }>;
+  const groups = new Map<string, { rules: readonly Rule.Rule<Definition>[]; files: string[] }>();
+  const files = new Set<string>();
+  for (const group of plan.groups) {
+    const rules = group.rules.filter((rule): rule is Rule.Rule<Definition> => rule.backend.tool === tool);
+    if (rules.length === 0) continue;
+    const key = JSON.stringify(rules.map(({ id }) => id));
+    const selected = groups.get(key) ?? { rules, files: [] };
+    for (const file of group.files) {
+      selected.files.push(file);
+      files.add(file);
+    }
+    groups.set(key, selected);
+  }
+  return {
+    root: plan.root,
+    files: plan.files.filter((file) => files.has(file)),
+    groups: [...groups.values()].map(({ rules, files }) => ({ rules, files: files.toSorted() })),
+  };
+};
+
 export class InvalidRoot extends Schema.TaggedError<InvalidRoot>()("InvalidRoot", {
   message: Schema.String,
 }) {}

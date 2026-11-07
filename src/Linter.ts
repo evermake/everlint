@@ -1,13 +1,15 @@
 import { Effect, Schema } from "effect";
 import { ESLint } from "./backends/ESLint";
 import type { Implementation as ESLintImplementation } from "./backends/ESLint";
-import type { LintResult } from "./Diagnostic";
+import { Markdownlint } from "./backends/Markdownlint";
+import type { Implementation as MarkdownlintImplementation } from "./backends/Markdownlint";
+import type { Diagnostic, LintResult } from "./Diagnostic";
 import * as Project from "./Project";
 import type * as Rule from "./Rule";
 import { rules as builtinRules } from "./rules";
 
 /** Add new backend implementations here as their adapters become available. */
-export type SupportedRule = Rule.Rule<ESLintImplementation>;
+export type SupportedRule = Rule.Rule<ESLintImplementation | MarkdownlintImplementation>;
 
 export class InvalidRules extends Schema.TaggedError<InvalidRules>()("InvalidRules", {
   message: Schema.String,
@@ -26,8 +28,19 @@ export const lintProject = Effect.fn("lintProject")(function*(
   }
 
   const plan = yield* Project.plan(root, rules);
-  const backend = yield* ESLint;
-  const diagnostics = yield* backend.run(plan);
+  const diagnostics: Diagnostic[] = [];
+  const eslintPlan = Project.forBackend(plan, "eslint");
+  if (eslintPlan.files.length > 0) {
+    const backend = yield* ESLint;
+    const results = yield* backend.run(eslintPlan);
+    for (const diagnostic of results) diagnostics.push(diagnostic);
+  }
+  const markdownlintPlan = Project.forBackend(plan, "markdownlint");
+  if (markdownlintPlan.files.length > 0) {
+    const backend = yield* Markdownlint;
+    const results = yield* backend.run(markdownlintPlan);
+    for (const diagnostic of results) diagnostics.push(diagnostic);
+  }
   return {
     files: plan.files.length,
     diagnostics: diagnostics.toSorted((a, b) =>

@@ -10,6 +10,7 @@
   },
   "packageManager": "bun@1.4.4",
   "scripts": {
+    "test": "vitest run",
     "lint": "bun run src/everlint.ts",
     "typecheck": "tsc --noEmit",
     "build": "bun build src/everlint.ts --compile --external jiti --outfile dist/everlint"
@@ -19,11 +20,15 @@
     "@typescript-eslint/parser": "8.72.1",
     "effect": "4.1.2",
     "eslint": "10.14.0",
+    "markdownlint": "0.42.1",
     "minimatch": "10.2.6",
     "typescript": "npm:@typescript/typescript6@6.0.2"
   },
   "devDependencies": {
     "@types/bun": "1.4.4",
-    "@typescript/native": "npm:typescript@7.0.2"
+    "@types/markdown-it": "14.2.0",
+    "@typescript/native": "npm:typescript@7.0.2",
+    "markdown-it": "15.0.3",
+    "vitest": "5.1.0"
   }
 }

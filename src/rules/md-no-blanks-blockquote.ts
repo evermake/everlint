@@ -1,0 +1,10 @@
+/** Adjacent blockquotes are not separated by unmarked blank lines alone. */
+import * as Markdownlint from "../backends/Markdownlint";
+import * as FileFilter from "../FileFilter";
+import * as Rule from "../Rule";
+
+export default Rule.make({
+  id: "md-no-blanks-blockquote",
+  filter: FileFilter.byLang(["md"]),
+  backend: Markdownlint.rule({ name: "MD028" }),
+});
