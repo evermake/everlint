@@ -12,14 +12,18 @@
   "scripts": {
     "lint": "bun run src/everlint.ts",
     "typecheck": "tsc --noEmit",
-    "build": "bun build src/everlint.ts --compile --outfile dist/everlint"
+    "build": "bun build src/everlint.ts --compile --external jiti --outfile dist/everlint"
   },
   "dependencies": {
     "@effect/platform-bun": "4.1.2",
-    "effect": "4.1.2"
+    "@typescript-eslint/parser": "8.72.1",
+    "effect": "4.1.2",
+    "eslint": "10.14.0",
+    "minimatch": "10.2.6",
+    "typescript": "npm:@typescript/typescript6@6.0.2"
   },
   "devDependencies": {
     "@types/bun": "1.4.4",
-    "typescript": "7.0.2"
+    "@typescript/native": "npm:typescript@7.0.2"
   }
 }
